@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "OrdinalSafe",
+  "description": "Inscription aware extension wallet for Bitcoin",
+  "permissions": ["storage", "tabs", "favicon"],
+  "chrome_url_overrides": {},
+  "background": { "service_worker": "background.bundle.js" },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon-34.png"
+  },
+  "icons": {
+    "128": "icon-128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*", "<all_urls>"],
+      "js": ["contentScript.bundle.js"],
+      "css": [],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icon-128.png", "icon-34.png"],
+      "matches": []
+    },
+    {
+      "resources": ["inject.bundle.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

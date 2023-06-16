@@ -1,0 +1,19 @@
+.swiper-button-next {
+    color: #1E65F3;
+}
+
+.swiper-button-next::after {
+    font-size: 30px;
+}
+
+.swiper-button-prev {
+    color: #1E65F3;
+}
+
+.swiper-button-prev::after {
+    font-size: 30px;
+}
+
+.swiper-slide {
+    height: 4rem;
+}
