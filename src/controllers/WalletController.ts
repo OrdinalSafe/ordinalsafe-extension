@@ -6,7 +6,7 @@ import BIP32Factory, { BIP32Interface } from 'bip32';
 import ecc from '@bitcoinerlab/secp256k1';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 import wif from 'wif';
-import * as encryptor from '@ordinalsafe/browser-passworder';
+import * as encryptor from '@metamask/browser-passworder';
 import { getBIP322ToSignTx, getBIP322ToSpendTx } from './TransactionController';
 import { splitByNChars } from './helpers/algos';
 import { Taptree } from 'bitcoinjs-lib/src/types';
