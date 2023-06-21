@@ -509,6 +509,9 @@ export const accountSlice = createSlice({
     // brc20s
     setBrcBalances: (state, action) => {
       const activeAddress = action.payload.address;
+      if (!state.accounts[activeAddress]) {
+        return;
+      }
       state.accounts[activeAddress].brcBalances = action.payload.payload;
     },
     // TODO: add brc20 utxos

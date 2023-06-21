@@ -95,12 +95,10 @@ class Wallet implements IWallet {
     isTestnet: boolean = false
   ): Promise<{ commit: string; reveal: string }> {
     return new Promise(async (resolve, reject) => {
-      if (
-        !mimeType || !hexData
-      ) {
+      if (!mimeType || !hexData) {
         return reject(INVALID_PARAMS);
       }
-        
+
       for (const externalFee of externalFees || []) {
         if (!externalFee.fee || !externalFee.receiver) {
           return reject(INVALID_PARAMS);

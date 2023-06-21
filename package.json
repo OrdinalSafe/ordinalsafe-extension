@@ -1,11 +1,11 @@
 {
   "name": "ordinal-safe-extension",
-  "version": "0.1.0.5",
+  "version": "0.1.1.2",
   "description": "Inscription aware extension wallet for Bitcoin",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OrdinalSafe/ordinalsafe-extension.git"
+    "url": "https://github.com/ordinalsafe/ordinalsafe-extension.git"
   },
   "scripts": {
     "build": "node utils/build.js",

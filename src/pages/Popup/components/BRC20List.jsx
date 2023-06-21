@@ -9,7 +9,7 @@ const BRC20List = () => {
     (state) => state.wallet.activeWallet.address
   );
   const brcBalances = useSelector(
-    (state) => state.account.accounts[activeAddress].brcBalances || []
+    (state) => state.account.accounts[activeAddress]?.brcBalances || []
   );
 
   return (

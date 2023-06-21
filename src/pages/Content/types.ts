@@ -36,8 +36,7 @@ export interface IWallet {
    * text/html;charset=utf-8,
    * text/plain;charset=utf-8)
    * @param data Hex encoded data to inscribe
-   * @param websiteFeeReceiver Address of the website fee receiver (if left null, no fee will be paid)
-   * @param websiteFeeInSats Amount of satoshis that will be paid to the website (if websiteFeeReceiver is null, this has to be null too)
+   * @param externalFees List of fees to pay for the inscription. See ExternalFee type. (if left null, no fees will be paid. excludes network fees)
    * @param inscriptionReceiver Address of the inscription receiver (if left null, data will be inscribed to the default wallet of the user)
    * @param isTestnet If true, inscribes on testnet
    * @returns commit Commit transaction id

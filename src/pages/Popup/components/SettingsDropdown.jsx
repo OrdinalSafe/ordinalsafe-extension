@@ -4,7 +4,7 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Link, useNavigate } from 'react-router-dom';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import { useDispatch, useSelector } from 'react-redux';
-import { setLock } from '../store/features/auth';
+import { setLock, setPincode } from '../store/features/auth';
 import { event, getMempoolURL } from '../utils';
 import { fetchAndSet } from '../Popup';
 import { store } from '../store';
@@ -24,6 +24,7 @@ export default function SettingsDropdown() {
 
   const lock = () => {
     dispatch(setLock(true));
+    dispatch(setPincode(''));
     event('lock_wallet', {
       address,
     });

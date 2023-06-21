@@ -11,13 +11,13 @@ const BitcoinBalance = () => {
     (state) => state.wallet.activeWallet.address
   );
   const balanceSelector = useSelector(
-    (state) => state.account.accounts[activeAddress].balance
+    (state) => state.account.accounts[activeAddress]?.balance || 0
   );
   const bitcoinPrice = useSelector((state) => state.account.bitcoinPrice);
   const balanceInUSD = satoshisToBTC(balance) * bitcoinPrice;
 
   useEffect(() => {
-    setBalance(store.getState().account.accounts[activeAddress].balance);
+    setBalance(store.getState().account.accounts[activeAddress]?.balance || 0);
   }, [activeAddress]);
 
   useEffect(() => {

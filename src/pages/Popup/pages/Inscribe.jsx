@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { 
+import {
   generateRevealAddress,
   getInscribeCommitTx,
   getInscribeRevealTx,
@@ -236,12 +236,17 @@ const Inscribe = () => {
 
         setContent(state.content);
         setExternalFeeSum(
-          state.content.externalFees.map(f => f.fee).reduce((a, b) => a + b, 0)
-        )
+          state.content.externalFees
+            .map((f) => f.fee)
+            .reduce((a, b) => a + b, 0)
+        );
         setHost(state.host);
 
         if (IS_MOCK) {
-          showToast('error', 'Inscribe feature is not supported in unofficial builds');
+          showToast(
+            'error',
+            'Inscribe feature is not supported in unofficial builds'
+          );
           setInscribeDisabled(true);
           return;
         }
@@ -299,17 +304,17 @@ const Inscribe = () => {
 
   const calculate = (cardinalUTXOsToUse, feeRate) => {
     const { chosenUTXOs, change, commitCost, revealCost, postageSize } =
-    getInscribeTxsInfo(
-      cardinalUTXOsToUse,
-      content.hexData,
-      address,
-      feeRate,
-      serviceFee.feeAmount,
-      serviceFee.feeReceiver,
-      btcPrice,
-      content.externalFees,
-      network
-    );
+      getInscribeTxsInfo(
+        cardinalUTXOsToUse,
+        content.hexData,
+        address,
+        feeRate,
+        serviceFee.feeAmount,
+        serviceFee.feeReceiver,
+        btcPrice,
+        content.externalFees,
+        network
+      );
 
     setChosenUTXOs(chosenUTXOs);
     setChange(change);
@@ -354,9 +359,7 @@ const Inscribe = () => {
             'Error calculating transaction size: ' + err.message
           );
         }
-        setError(
-          'Error calculating transaction size, please try again later.'
-        );
+        setError('Error calculating transaction size, please try again later.');
         // To disable NaN error
         setCommitCost(0);
         setLoading(false);
