@@ -1,10 +1,14 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-
+import {
+  useLocation,
+  useNavigationType,
+  createRoutesFromChildren,
+  matchRoutes,
+} from 'react-router-dom';
 import './index.out.css';
 
 import * as Sentry from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
 
 import * as amplitude from '@amplitude/analytics-browser';
 
@@ -15,15 +19,17 @@ import App from './App';
 Sentry.init({
   dsn: secrets.SENTRY_DSN,
   integrations: [
-    new BrowserTracing(),
-    new Sentry.Replay({
-      maskAllText: true,
-      blockAllMedia: true,
+    new Sentry.BrowserTracing({
+      routingInstrumentation: Sentry.reactRouterV6Instrumentation(
+        React.useEffect,
+        useLocation,
+        useNavigationType,
+        createRoutesFromChildren,
+        matchRoutes
+      ),
     }),
   ],
   tracesSampleRate: 1.0,
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1,
   environment: isDevelopment ? 'development' : 'production',
 });
 

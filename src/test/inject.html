@@ -16,6 +16,8 @@
     <button id="sendBitcoin">SendBitcoin</button>
     <button id="sendInscription">SendInscription</button>
     <button id="broadcast">Broadcast</button>
+    <button id="switchNetwork">switchNetwork</button>
+    <button id="getNetwork">getNetwork</button>
     <button id="myBtn3">getBalance</button>
     <button id="myBtn4">getInscriptions</button>
     <button id="myBtn7">testBroadcastSendBTCFlow</button>
@@ -57,6 +59,19 @@
     <script type="module" src="./connectjs-lib.js"></script>
 
     <script type="module" async="true">
+       // measure time ordinalsafe is loaded
+        let time = 0;
+        const interval = setInterval(() => {
+            if (typeof window.ordinalSafe !== 'undefined') {
+                console.log('ordinalSafe loaded in ' + time + ' seconds');
+                clearInterval(interval);
+            } else {
+                console.log('ordinalSafe not loaded yet');
+            }
+            time += 1;
+        }, 1);
+
+        
         // onclick event
         async function forget() {
             try {
@@ -169,6 +184,30 @@
 
                     // set demo
                     document.getElementById("demo").innerHTML = JSON.stringify(verified);
+                }
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        async function switchNetwork() {
+            try {
+                if (typeof window.ordinalSafe !== 'undefined') {
+                    const a = await ordinalSafe.switchNetwork('testnet')
+                    // set demo
+                    document.getElementById("demo").innerHTML = JSON.stringify(a);
+                }
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        async function getNetwork() {
+            try {
+                if (typeof window.ordinalSafe !== 'undefined') {
+                    const a = await ordinalSafe.getNetwork()
+                    // set demo
+                    document.getElementById("demo").innerHTML = JSON.stringify(a);
                 }
             } catch (e) {
                 console.log(e);
@@ -411,6 +450,8 @@
         document.getElementById("broadcast").addEventListener("click", broadcast);
         document.getElementById("myBtn").addEventListener("click", myFunction);
         document.getElementById("myBtn2").addEventListener("click", sign);
+        document.getElementById("getNetwork").addEventListener("click", getNetwork);
+        document.getElementById("switchNetwork").addEventListener("click", switchNetwork);
         document.getElementById("myBtn3").addEventListener("click", getBalance);
         document.getElementById("myBtn4").addEventListener("click", getInscriptions);
         document.getElementById("myBtn5").addEventListener("click", getUTXOs);

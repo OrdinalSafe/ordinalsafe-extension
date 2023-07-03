@@ -33,10 +33,10 @@ const Broadcast = () => {
     (state) => state.wallet.activeWallet.address
   );
   const cardinalUTXOs = useSelector(
-    (state) => state.account.accounts[address].cardinalUTXOs
+    (state) => state.account.accounts[address]?.cardinalUTXOs || []
   );
   const ordinalUTXOs = useSelector(
-    (state) => state.account.accounts[address].ordinalUTXOs
+    (state) => state.account.accounts[address]?.ordinalUTXOs || []
   );
   const network = useSelector((state) => state.settings.network);
 

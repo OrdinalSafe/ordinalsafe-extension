@@ -1,6 +1,6 @@
 {
   "name": "ordinal-safe-extension",
-  "version": "0.1.1.2",
+  "version": "0.1.1.4",
   "description": "Inscription aware extension wallet for Bitcoin",
   "license": "MIT",
   "repository": {
@@ -21,8 +21,7 @@
     "@metamask/browser-passworder": "^4.1.0",
     "@ordinalsafe/inscribe": "^0.1.5",
     "@reduxjs/toolkit": "^1.9.3",
-    "@sentry/react": "^7.42.0",
-    "@sentry/tracing": "^7.42.0",
+    "@sentry/react": "^7.57.0",
     "@types/bip38": "^2.0.1",
     "@types/jest": "^29.5.1",
     "@types/wif": "^2.0.2",

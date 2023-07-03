@@ -8,7 +8,7 @@ const InscriptionList = () => {
     (state) => state.wallet.activeWallet.address
   );
   const inscriptions = useSelector(
-    (state) => state.account.accounts[activeAddress].inscriptionIds
+    (state) => state.account.accounts[activeAddress]?.inscriptionIds || []
   );
 
   return (

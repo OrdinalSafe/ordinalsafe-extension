@@ -1,5 +1,6 @@
 import React from 'react';
 import { createHashRouter } from 'react-router-dom';
+import * as Sentry from '@sentry/react';
 
 import ProtectedRoute from './ProtectedRoute';
 
@@ -44,8 +45,11 @@ import Switch from './pages/Switch';
 import { event } from './utils';
 import ExternalSignBitcoin from './pages/Sign/ExternalSignBitcoin';
 import ExternalSignInscription from './pages/Sign/ExternalSignInscription';
+import SwitchNetwork from './pages/SwitchNetwork';
 
-const router = createHashRouter([
+const sentryCreateHashRouter = Sentry.wrapCreateBrowserRouter(createHashRouter);
+
+const router = sentryCreateHashRouter([
   // 3rd party start
   {
     path: '/auth',
@@ -92,6 +96,14 @@ const router = createHashRouter([
     element: (
       <ProtectedRoute shouldAuth={true} shouldExists={true}>
         <SignMessage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/switchNetwork',
+    element: (
+      <ProtectedRoute shouldAuth={true} shouldExists={true}>
+        <SwitchNetwork />
       </ProtectedRoute>
     ),
   },

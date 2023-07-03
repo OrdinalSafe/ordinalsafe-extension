@@ -24,15 +24,15 @@ import {
   SEND_BITCOIN_REJECT,
   SEND_INSCRIPTION_REQUEST,
   SEND_INSCRIPTION_REJECT,
+  GET_NETWORK_REQUEST,
+  NETWORK_REJECT,
+  SWITCH_NETWORK_REJECT,
+  SWITCH_NETWORK_REQUEST,
 } from '../../types';
 
 import { sendAsyncMessageToContentScript } from './messageHandler';
-import * as bitcoin from 'bitcoinjs-lib';
-import ecc from '@bitcoinerlab/secp256k1';
 
 const packageJson = require('../../../package.json');
-
-bitcoin.initEccLib(ecc);
 
 class Wallet implements IWallet {
   isOrdinalSafe: boolean;
@@ -92,43 +92,9 @@ class Wallet implements IWallet {
     hexData: string,
     externalFees: Array<ExternalFee> | null,
     inscriptionReceiver: string | null = null,
-    isTestnet: boolean = false
+    isTestnet: boolean = false // TODO: useless, remove this in next version
   ): Promise<{ commit: string; reveal: string }> {
     return new Promise(async (resolve, reject) => {
-      if (!mimeType || !hexData) {
-        return reject(INVALID_PARAMS);
-      }
-
-      for (const externalFee of externalFees || []) {
-        if (!externalFee.fee || !externalFee.receiver) {
-          return reject(INVALID_PARAMS);
-        }
-
-        if (externalFee.fee <= 0 || !Number.isInteger(externalFee.fee)) {
-          return reject(INVALID_PARAMS);
-        }
-
-        try {
-          bitcoin.address.toOutputScript(
-            externalFee.receiver,
-            isTestnet ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
-          );
-        } catch (err) {
-          return reject(INVALID_ADDRESS);
-        }
-      }
-
-      if (inscriptionReceiver !== null) {
-        try {
-          bitcoin.address.toOutputScript(
-            inscriptionReceiver,
-            isTestnet ? bitcoin.networks.testnet : bitcoin.networks.bitcoin
-          );
-        } catch (err) {
-          return reject(INVALID_ADDRESS);
-        }
-      }
-
       try {
         const res = await sendAsyncMessageToContentScript({
           type: INSCRIBE_REQUEST,
@@ -232,27 +198,42 @@ class Wallet implements IWallet {
       }
     });
   }
-  // verifyMessage(message: string, signature: string): Promise<boolean> {
-  //   return new Promise(async (resolve, reject) => {
-  //     try {
-  //       const res = await sendAsyncMessageToContentScript({
-  //         type: '3P_VERIFY_MESSAGE',
-  //         payload: {
-  //           message,
-  //           signature,
-  //         },
-  //       });
-  //       if (res.rejected) {
-  //         if (res.message) return reject(res.message);
-  //         return reject('SIGN_REJECT');
-  //       }
-  //       let { verified } = res;
-  //       resolve(verified);
-  //     } catch (err) {
-  //       reject(err);
-  //     }
-  //   });
-  // }
+  switchNetwork(networkToSwitch: string): Promise<string> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const res = await sendAsyncMessageToContentScript({
+          type: SWITCH_NETWORK_REQUEST,
+          payload: {
+            network: networkToSwitch,
+          },
+        });
+        if (res.rejected) {
+          if (res.message) return reject(res.message);
+          return reject(SWITCH_NETWORK_REJECT);
+        }
+        let { network } = res;
+        resolve(network);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+  getNetwork(): Promise<string> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const res = await sendAsyncMessageToContentScript({
+          type: GET_NETWORK_REQUEST,
+        });
+        if (res.rejected) {
+          if (res.message) return reject(res.message);
+          return reject(NETWORK_REJECT);
+        }
+        resolve(res.network);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
   getBalance(): Promise<number> {
     return new Promise(async (resolve, reject) => {
       try {

@@ -45,6 +45,9 @@ import { signPSBTFromWallet } from '../../controllers/WalletController';
 import { Psbt } from 'bitcoinjs-lib';
 import {
   BROADCAST_CONNECT,
+  GET_NETWORK_REJECT_RESPONSE,
+  GET_NETWORK_REQUEST,
+  GET_NETWORK_SUCCESS_RESPONSE,
   INSCRIBE_CONNECT,
   SEND_BITCOIN_REJECT_RESPONSE,
   SEND_BITCOIN_REQUEST,
@@ -52,6 +55,9 @@ import {
   SEND_INSCRIPTION_REJECT_RESPONSE,
   SEND_INSCRIPTION_REQUEST,
   SEND_INSCRIPTION_SUCCESS_RESPONSE,
+  SWITCH_NETWORK_REJECT_RESPONSE,
+  SWITCH_NETWORK_REQUEST,
+  SWITCH_NETWORK_SUCCESS_RESPONSE,
 } from '../../types';
 
 chrome.runtime.onInstalled.addListener(({ reason }) => {
@@ -87,11 +93,17 @@ function externalMessageListener(message, sender, sendResponse) {
     case MESSAGE_SIGN_REQUEST:
       apiService.signMessage(sender, payload.payload);
       break;
+    case SWITCH_NETWORK_REQUEST:
+      apiService.switchNetwork(sender, payload.payload);
+      break;
     case FORGET_IDENTITY_REQUEST:
       apiService.forgetIdentity(sender);
       break;
     case BROADCAST_REQUEST:
       apiService.broadcast(sender, payload.payload);
+      break;
+    case GET_NETWORK_REQUEST:
+      apiService.getNetwork(sender);
       break;
     case GET_BALANCE_REQUEST:
       apiService.getBalance(sender);
@@ -145,6 +157,12 @@ function internalMessageListener(message, sender, sendResponse) {
     case MESSAGE_SIGN_REJECT_RESPONSE:
       apiService.onSignMessageReject(payload);
       break;
+    case SWITCH_NETWORK_SUCCESS_RESPONSE:
+      apiService.onSwitchNetworkSuccess(payload);
+      break;
+    case SWITCH_NETWORK_REJECT_RESPONSE:
+      apiService.onSwitchNetworkReject(payload);
+      break;
     case GET_ACCOUNT_SUCCESS_RESPONSE:
       apiService.onGetAccountSuccess(payload);
       break;
@@ -156,6 +174,12 @@ function internalMessageListener(message, sender, sendResponse) {
       break;
     case BROADCAST_REJECT_RESPONSE:
       apiService.onBroadcastReject(payload);
+      break;
+    case GET_NETWORK_SUCCESS_RESPONSE:
+      apiService.onGetNetworkSuccess(payload);
+      break;
+    case GET_NETWORK_REJECT_RESPONSE:
+      apiService.onGetNetworkReject(payload);
       break;
     case GET_BALANCE_SUCCESS_RESPONSE:
       apiService.onGetBalanceSuccess(payload);

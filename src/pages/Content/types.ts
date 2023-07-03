@@ -87,6 +87,19 @@ export interface IWallet {
   signMessage(message: string): Promise<string>;
 
   /**
+   * Switchs selected network of the wallet.
+   * @param network "mainnet" or "testnet"
+   * @returns network "mainnet" or "testnet"
+   */
+  switchNetwork(network: string): Promise<string>;
+
+  /**
+   * Returns the current selected network.
+   * @returns network "mainnet" or "testnet"
+   */
+  getNetwork(): Promise<string>;
+
+  /**
    * Balance of the default account.
    * @returns balance Balance in satoshis
    */

@@ -4,7 +4,6 @@
 
 OrdinalSafe is available on the [Chrome Web Store](https://chrome.google.com/webstore/detail/ordinalsafe/coefgobimbelhfmhkpndlddjhkphgnep).
 
-
 ## Procedures for development:
 
 1. Check if your [Node.js](https://nodejs.org/) version is >= **18**.
@@ -21,12 +20,13 @@ OrdinalSafe is available on the [Chrome Web Store](https://chrome.google.com/web
 ## Packing
 
 After the development of your extension
+
 1. Copy .secrets.template.js to secrets.production.js and fill in the blanks. You will need to fill in the `API_KEY` field. If not, you can leave it blank. The extension will still work, but it will have more strict rate limits.
 2. Run the command:
+
 ```
 $ NODE_ENV=production npm run build
 ```
-
 
 **Note:** Inscribe feature is only available on official build.
 

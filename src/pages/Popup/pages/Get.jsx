@@ -6,6 +6,8 @@ import {
   GET_BALANCE_SUCCESS_RESPONSE,
   GET_INSCRIPTIONS_REJECT_RESPONSE,
   GET_INSCRIPTIONS_SUCCESS_RESPONSE,
+  GET_NETWORK_REJECT_RESPONSE,
+  GET_NETWORK_SUCCESS_RESPONSE,
   GET_UTXOS_REJECT_RESPONSE,
   GET_UTXOS_SUCCESS_RESPONSE,
 } from '../../../types';
@@ -25,7 +27,9 @@ const Get = () => {
       });
       if (
         state &&
-        ['getBalance', 'getInscriptions', 'getUtxos'].includes(state.type)
+        ['getBalance', 'getInscriptions', 'getUtxos', 'getNetwork'].includes(
+          state.type
+        )
       ) {
         const activeAddress = walletState.wallet.activeWallet.address;
 
@@ -40,6 +44,8 @@ const Get = () => {
                   ? GET_BALANCE_REJECT_RESPONSE
                   : state.type === 'getInscriptions'
                   ? GET_INSCRIPTIONS_REJECT_RESPONSE
+                  : state.type === 'getNetwork'
+                  ? GET_NETWORK_REJECT_RESPONSE
                   : GET_UTXOS_REJECT_RESPONSE,
             },
           });
@@ -48,6 +54,17 @@ const Get = () => {
         }
 
         switch (state.type) {
+          case 'getNetwork':
+            await chrome.runtime.sendMessage({
+              action: GET_NETWORK_SUCCESS_RESPONSE,
+              payload: {
+                network:
+                  walletState.settings.network.bech32 === 'tb'
+                    ? 'testnet'
+                    : 'mainnet',
+              },
+            });
+            break;
           case 'getBalance':
             await chrome.runtime.sendMessage({
               action: GET_BALANCE_SUCCESS_RESPONSE,

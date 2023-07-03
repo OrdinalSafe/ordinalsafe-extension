@@ -1,4 +1,6 @@
 /* eslint-disable no-restricted-globals */
+import * as bitcoin from 'bitcoinjs-lib';
+import ecc from '@bitcoinerlab/secp256k1';
 import * as lock from 'shared/lock';
 import {
   CLOSE_WINDOW,
@@ -13,8 +15,11 @@ import {
   BROADCAST_REQUEST_RESPONSE,
   GET_BALANCE_REQUEST_RESPONSE,
   GET_INSCRIPTIONS_REQUEST_RESPONSE,
+  GET_NETWORK_REQUEST_RESPONSE,
   GET_UTXOS_REQUEST_RESPONSE,
   INSCRIBE_REQUEST_RESPONSE,
+  INVALID_ADDRESS,
+  INVALID_PARAMS,
   MESSAGE_SIGN_REQUEST_RESPONSE,
   SEND_BITCOIN_REJECT_RESPONSE,
   SEND_BITCOIN_REQUEST_RESPONSE,
@@ -22,9 +27,12 @@ import {
   SEND_INSCRIPTION_REJECT_RESPONSE,
   SEND_INSCRIPTION_REQUEST_RESPONSE,
   SEND_INSCRIPTION_SUCCESS_RESPONSE,
+  SWITCH_NETWORK_REQUEST_RESPONSE,
 } from '../types';
 import getStoredState from 'redux-persist/es/getStoredState';
 import { persistConfig, authPersistConfig } from '../pages/Popup/store';
+
+bitcoin.initEccLib(ecc);
 
 export const getFaviconFromUrl = (u) => {
   const url = new URL(chrome.runtime.getURL('/_favicon/'));
@@ -56,6 +64,7 @@ export const msgToContentScript = (type, payload) => ({
 class APIService {
   psbt;
   tx;
+  network;
   bitcoin;
   inscription;
   message;
@@ -71,6 +80,7 @@ class APIService {
   constructor() {
     this.psbt = null;
     this.tx = null;
+    this.network = null;
     this.bitcoin = null;
     this.inscription = null;
     this.message = null;
@@ -88,6 +98,7 @@ class APIService {
     return {
       psbt: this.psbt,
       tx: this.tx,
+      network: this.network,
       bitcoin: this.bitcoin,
       inscription: this.inscription,
       message: this.message,
@@ -244,8 +255,7 @@ class APIService {
       if (!sessionAddress) {
         this.sendMessageToInject(response, {
           rejected: true,
-          message:
-            'The account is found in the session but not in the extension. Please use forgetIdentity first to sign out',
+          message: 'requestAccount first', // Happens when connected testnet wallet to mainnet website before
         });
 
         return;
@@ -260,6 +270,13 @@ class APIService {
           const store = await this.getStore();
 
           switch (this.type) {
+            case 'getNetwork':
+              return this.success(response, {
+                network:
+                  store.settings.network.bech32 === 'tb'
+                    ? 'testnet'
+                    : 'mainnet',
+              });
             case 'getBalance':
               return this.success(response, {
                 balance: store.account.accounts[sessionAddress].balance,
@@ -359,6 +376,7 @@ class APIService {
         }
       }
 
+      this.activeSession = session;
       await this.openPopup('auth');
     } catch (error) {
       console.log(error);
@@ -394,6 +412,40 @@ class APIService {
 
   inscribe = async (sender, payload) => {
     try {
+      for (const externalFee of payload.externalFees || []) {
+        if (!externalFee.receiver || !externalFee.fee) {
+          this.reject(INSCRIBE_REQUEST_RESPONSE, INVALID_PARAMS);
+          return;
+        }
+
+        if (externalFee.fee <= 0 || !Number.isInteger(externalFee.fee)) {
+          this.reject(INSCRIBE_REQUEST_RESPONSE, INVALID_PARAMS);
+          return;
+        }
+
+        try {
+          bitcoin.address.toOutputScript(
+            externalFee.receiver,
+            this.getStore().settings.network
+          );
+        } catch (error) {
+          this.reject(INSCRIBE_REQUEST_RESPONSE, INVALID_ADDRESS);
+          return;
+        }
+      }
+
+      if (payload.inscriptionReceiver) {
+        try {
+          bitcoin.address.toOutputScript(
+            payload.inscriptionReceiver,
+            this.getStore().settings.network
+          );
+        } catch (error) {
+          this.reject(INSCRIBE_REQUEST_RESPONSE, INVALID_ADDRESS);
+          return;
+        }
+      }
+
       this.setHost(sender);
 
       this.type = 'inscribe';
@@ -509,6 +561,42 @@ class APIService {
     this.reject(MESSAGE_SIGN_REQUEST_RESPONSE, message);
   };
 
+  switchNetwork = async (sender, payload) => {
+    try {
+      this.setHost(sender);
+
+      this.type = 'switchNetwork';
+      this.network = payload.network;
+
+      await this.processSession(
+        this.host,
+        SWITCH_NETWORK_REQUEST_RESPONSE,
+        'switchNetwork'
+      );
+    } catch (err) {
+      this.reject(
+        SWITCH_NETWORK_REQUEST_RESPONSE,
+        err.message || 'SWITCH_ERROR'
+      );
+    }
+  };
+  onSwitchNetworkSuccess = async (payload) => {
+    // now address is changed, so we need to update it
+    const sessions = await this.getSessions();
+    const store = await this.getStore();
+    const activeWalletAddress = store.wallet.activeWallet.address;
+
+    const index = sessions.findIndex((session) => session.host === this.host);
+    sessions[index].account.accounts = [activeWalletAddress]; // backwards compatibility
+
+    await this.setSessions(sessions);
+
+    this.success(SWITCH_NETWORK_REQUEST_RESPONSE, payload);
+  };
+  onSwitchNetworkReject = async ({ message }) => {
+    this.reject(SWITCH_NETWORK_REQUEST_RESPONSE, message);
+  };
+
   broadcast = async (sender, payload) => {
     try {
       this.setHost(sender);
@@ -532,7 +620,27 @@ class APIService {
     this.reject(BROADCAST_REQUEST_RESPONSE, message);
   };
 
-  // TODO: Add active wallet check for all getX endpoints.
+  getNetwork = async (sender) => {
+    try {
+      this.setHost(sender);
+
+      this.type = 'getNetwork';
+
+      await this.processSession(this.host, GET_NETWORK_REQUEST_RESPONSE, 'get');
+    } catch (err) {
+      this.reject(
+        GET_NETWORK_REQUEST_RESPONSE,
+        err.message || 'GET_NETWORK_ERROR'
+      );
+    }
+  };
+  onGetNetworkSuccess = async (payload) => {
+    this.success(GET_NETWORK_REQUEST_RESPONSE, payload);
+  };
+  onGetNetworkReject = async ({ message }) => {
+    this.reject(GET_NETWORK_REQUEST_RESPONSE, message);
+  };
+
   getBalance = async (sender) => {
     try {
       this.setHost(sender);

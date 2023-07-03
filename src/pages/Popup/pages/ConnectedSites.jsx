@@ -12,18 +12,19 @@ const ConnectedSites = ({ isOpen, onClose }) => {
       try {
         const sessions = await chrome.storage.local.get('session');
         const wallets = store.getState().wallet.wallets;
-        const sessionsProcessed = sessions.session?.map((session, index) => {
-          const address = session.account.accounts[0];
-          const name = wallets.find(
-            (wallet) => wallet.address === address
-          ).name;
+        const sessionsProcessed = [];
+        sessions.session?.forEach((session, index) => {
           const host = session.host;
-          return {
-            index,
-            address,
-            name,
-            host,
-          };
+          const address = session?.account?.accounts[0];
+          const wallet = wallets.find((wallet) => wallet.address === address);
+          if (wallet) {
+            sessionsProcessed.push({
+              index,
+              address,
+              name: wallet.name,
+              host,
+            });
+          }
         });
         setSessions(sessionsProcessed);
       } catch (error) {

@@ -58,16 +58,16 @@ const ExternalSignInscription = () => {
     (state) => state.wallet.activeWallet.address
   );
   const cardinalUTXOs = useSelector(
-    (state) => state.account.accounts[address].cardinalUTXOs
+    (state) => state.account.accounts[address]?.cardinalUTXOs || []
   );
   const ordinalUTXOs = useSelector(
-    (state) => state.account.accounts[address].ordinalUTXOs
+    (state) => state.account.accounts[address]?.ordinalUTXOs || []
   );
   const inscriptionIds = useSelector(
-    (state) => state.account.accounts[address].inscriptionIds
+    (state) => state.account.accounts[address]?.inscriptionIds || []
   );
   const unconfirmedCardinalUTXOs = useSelector(
-    (state) => state.account.accounts[address].unconfirmedCardinalUTXOs
+    (state) => state.account.accounts[address]?.unconfirmedCardinalUTXOs || []
   );
   const encryptedPrivKey = useSelector(
     (state) => state.wallet.activeWallet.encryptedPrivKey

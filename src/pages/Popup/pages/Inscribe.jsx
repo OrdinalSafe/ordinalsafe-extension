@@ -58,10 +58,10 @@ const Inscribe = () => {
 
   const address = useSelector((state) => state.wallet.activeWallet.address);
   const cardinalUTXOs = useSelector(
-    (state) => state.account.accounts[address].cardinalUTXOs
+    (state) => state.account.accounts[address]?.cardinalUTXOs || []
   );
   const unconfirmedCardinalUTXOs = useSelector(
-    (state) => state.account.accounts[address].unconfirmedCardinalUTXOs
+    (state) => state.account.accounts[address]?.unconfirmedCardinalUTXOs || []
   );
   const encryptedPrivKey = useSelector(
     (state) => state.wallet.activeWallet.encryptedPrivKey
