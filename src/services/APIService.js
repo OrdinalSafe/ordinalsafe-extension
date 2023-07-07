@@ -411,6 +411,8 @@ class APIService {
   };
 
   inscribe = async (sender, payload) => {
+    const network = (await this.getStore()).settings.network;
+    
     try {
       for (const externalFee of payload.externalFees || []) {
         if (!externalFee.receiver || !externalFee.fee) {
@@ -426,7 +428,7 @@ class APIService {
         try {
           bitcoin.address.toOutputScript(
             externalFee.receiver,
-            this.getStore().settings.network
+            network
           );
         } catch (error) {
           this.reject(INSCRIBE_REQUEST_RESPONSE, INVALID_ADDRESS);
@@ -438,7 +440,7 @@ class APIService {
         try {
           bitcoin.address.toOutputScript(
             payload.inscriptionReceiver,
-            this.getStore().settings.network
+            network
           );
         } catch (error) {
           this.reject(INSCRIBE_REQUEST_RESPONSE, INVALID_ADDRESS);
