@@ -28,6 +28,7 @@ import {
   NETWORK_REJECT,
   SWITCH_NETWORK_REJECT,
   SWITCH_NETWORK_REQUEST,
+  KEEP_ALIVE,
 } from '../../types';
 
 import { sendAsyncMessageToContentScript } from './messageHandler';
@@ -41,6 +42,20 @@ class Wallet implements IWallet {
   constructor() {
     this.isOrdinalSafe = true;
     this.version = packageJson.version;
+
+    this.keepAlive();
+  }
+
+  private keepAlive() {
+    const keepAliveInterval = setInterval(() => {
+      sendAsyncMessageToContentScript({
+        type: KEEP_ALIVE,
+      });
+    }, 3000);
+
+    return () => {
+      clearInterval(keepAliveInterval);
+    };
   }
 
   forgetIdentity(): Promise<string> {

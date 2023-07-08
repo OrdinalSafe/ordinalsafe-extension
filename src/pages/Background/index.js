@@ -49,6 +49,7 @@ import {
   GET_NETWORK_REQUEST,
   GET_NETWORK_SUCCESS_RESPONSE,
   INSCRIBE_CONNECT,
+  KEEP_ALIVE,
   SEND_BITCOIN_REJECT_RESPONSE,
   SEND_BITCOIN_REQUEST,
   SEND_BITCOIN_SUCCESS_RESPONSE,
@@ -119,6 +120,10 @@ function externalMessageListener(message, sender, sendResponse) {
       break;
     case SEND_INSCRIPTION_REQUEST:
       apiService.sendInscription(sender, payload.payload);
+      break;
+    case KEEP_ALIVE:
+      // It keeps service worker alive
+      // No need to do anything
       break;
     default:
       console.warn('Unknown message from content script - ', message);
